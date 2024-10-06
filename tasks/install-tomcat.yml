@@ -1,0 +1,50 @@
+
+- name: Download tomcat tar file from web
+  get_url:
+   url=https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.95/bin/apache-tomcat-9.0.95.tar.gz
+   dest=/etc/ansible/roles/tomcat/files
+  delegate_to: localhost
+- name: Copy the tomat TAR on the worker nodes
+  copy: src=apache-tomcat-9.0.95.tar.gz dest=/tmp
+- name: Unzip the apache-tomcat-9.0.95.tar.gz
+  unarchive:
+   src=/tmp/apache-tomcat-9.0.95.tar.gz
+   remote_src=true
+   dest=/opt
+- name: Create a symlink
+  file:
+   src=/opt/apache-tomcat-9.0.95
+   path=/opt/tomcat
+   owner=tomcat
+   group=tomcat
+   state=link
+- name: Change ownership of tomcat installtion
+  file:
+   path=/opt/tomcat
+   owner=tomcat
+   group=tomcat
+   mode=0755
+   state=directory
+   recurse=yes
+- name: Create tomcat.service file
+  file: path=/etc/systemd/system/tomcat.service state=touch
+- name: create tomcat service
+  blockinfile:
+    path: /etc/systemd/system/tomcat.service
+    block: |
+      [Unit]
+      Description=Tomcat - instance %i
+      After=syslog.target network.target
+      [Service]
+      Type=forking
+      User=tomcat
+      Group=tomcat
+      Environment="CATALINA_HOME=/opt/tomcat/"
+      ExecStart=/opt/tomcat/bin/startup.sh
+      ExecStop=/opt/tomcat/bin/shutdown.sh
+      [Install]
+      WantedBy=multi-user.target
+- name: Start tomcat service
+  service: name=tomcat state=started
+
+

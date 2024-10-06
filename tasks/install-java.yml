@@ -1,0 +1,8 @@
+
+- name: Install java on debain based server
+  package: name=openjdk-8-jdk state=present
+  when: ansible_os_family == 'Debian'
+- name: Install jave on RHEL
+  package: name=java-1.8.0-openjdk state=present
+  when: ansible_os_family == 'RedHat'
+

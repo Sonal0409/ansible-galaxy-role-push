@@ -1,0 +1,19 @@
+---
+# tasks file for tomcat
+
+- name: run the users YAML
+  include_tasks: configure-user.yml
+  when: action == "install"
+- name: Run YAML for java installation
+  include_tasks: install-java.yml
+  when: action == "install"
+- name: RUN YAML for tomcat installation
+  include_tasks: install-tomcat.yml
+  when: action == "install"
+- name: RUN YAML for deployment
+  include_tasks: deploy-app.yml
+  when: action == "install"
+- name: RUN YAML for unstallation
+  include_tasks: uninstall-tomcat.yml
+  when: action == "uninstall"
+
